@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 17f7b1f1105964bddb83ab36db8b8113, type: 3}
+  m_Name: Level_3
+  m_EditorClassIdentifier: Assembly-CSharp::TapeLevelData
+  gridSize: {x: 8, y: 8}
+  tapes:
+  - id: 1
+    startCell: {x: 1, y: 5}
+    endCell: {x: 1, y: 1}
+    layer: 0
+  - id: 2
+    startCell: {x: 0, y: 2}
+    endCell: {x: 4, y: 5}
+    layer: 1
+  - id: 3
+    startCell: {x: 3, y: 6}
+    endCell: {x: 5, y: 3}
+    layer: 2
+  - id: 4
+    startCell: {x: 2, y: 5}
+    endCell: {x: 4, y: 2}
+    layer: 2
+  - id: 5
+    startCell: {x: 3, y: 1}
+    endCell: {x: 6, y: 5}
+    layer: 3
+  - id: 6
+    startCell: {x: 0, y: 4}
+    endCell: {x: 6, y: 3}
+    layer: 4
+  - id: 7
+    startCell: {x: 2, y: 2}
+    endCell: {x: 4, y: 0}
+    layer: 4
+  - id: 8
+    startCell: {x: 6, y: 5}
+    endCell: {x: 7, y: 4}
+    layer: 4
+  - id: 9
+    startCell: {x: 4, y: 6}
+    endCell: {x: 3, y: 5}
+    layer: 3
+  - id: 10
+    startCell: {x: 0, y: 5}
+    endCell: {x: 2, y: 5}
+    layer: 3
+  - id: 11
+    startCell: {x: 0, y: 1}
+    endCell: {x: 7, y: 1}
+    layer: 5

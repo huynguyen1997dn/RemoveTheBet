@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class TapeView : MonoBehaviour
 {
+    [SerializeField] private CellClickHandler _clickHandler;
+
     public int TapeId { get; private set; }
 
     private static readonly Color[] LayerColors =
@@ -49,8 +51,7 @@ public class TapeView : MonoBehaviour
             _sr.sortingOrder = tape.layer * 10 + 10;
         }
 
-        var handler = GetComponent<CellClickHandler>();
-        if (handler != null) handler.tapeId = tape.id;
+        if (_clickHandler != null) _clickHandler.tapeId = tape.id;
     }
 
     public void PlayRemoveAnimation()

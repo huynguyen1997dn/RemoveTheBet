@@ -73,6 +73,7 @@ public class TapeGameController : Singleton<TapeGameController>
             return;
         }
 
+        Debug.LogError("[TapeGameController] Tape tapped!");
         if (Model.IsTapeRemovable(tapeId))
         {
             Model.TryRemoveTape(tapeId);

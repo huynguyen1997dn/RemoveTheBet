@@ -7,6 +7,7 @@ public class CellClickHandler : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
+
         if (TapeGameController.Instance != null)
         {
             TapeGameController.Instance.OnTapeTapped(tapeId);

@@ -32,6 +32,9 @@ public class TapeLevelEditorWindow : EditorWindow
     private List<Tape>    m_Tapes;       // tham chiếu đến m_LevelData.tapes
     private int           m_NextId = 1;
 
+    // ===================== LOAD ASSET =====================
+    private TapeLevelData m_LoadAsset;
+
     // ===================== TRẠNG THÁI KÉO THẢ =====================
     private bool      m_IsDragging   = false;
     private Vector2Int m_DragStart;
@@ -193,6 +196,18 @@ public class TapeLevelEditorWindow : EditorWindow
             m_GridSize.y = Mathf.Max(2, EditorGUILayout.IntField(m_GridSize.y, GUILayout.Width(36)));
 
             GUILayout.Space(8);
+
+            // Load Level
+            m_LoadAsset = (TapeLevelData)EditorGUILayout.ObjectField(
+                GUIContent.none, m_LoadAsset, typeof(TapeLevelData), false, GUILayout.Width(140));
+
+            GUI.enabled = m_LoadAsset != null;
+            if (GUILayout.Button("Load", EditorStyles.toolbarButton, GUILayout.Width(40)))
+                LoadFromAsset();
+            GUI.enabled = true;
+
+            GUILayout.Space(8);
+
             if (GUILayout.Button("Generate Grid", EditorStyles.toolbarButton, GUILayout.Width(110)))
             {
                 GenerateGrid();
@@ -286,9 +301,10 @@ public class TapeLevelEditorWindow : EditorWindow
         {
             for (int col = 0; col < m_GridSize.x; col++)
             {
+                int displayRow = m_GridSize.y - 1 - row;
                 Rect cellRect = new Rect(
                     gridRect.x + col * m_CellSize,
-                    gridRect.y + row * m_CellSize,
+                    gridRect.y + displayRow * m_CellSize,
                     m_CellSize, m_CellSize);
 
                 // Nền xen kẽ
@@ -344,13 +360,14 @@ public class TapeLevelEditorWindow : EditorWindow
         Vector2Int start = tape.startCell;
         Vector2Int end   = tape.endCell;
 
-        // Tâm ô bắt đầu và kết thúc (tọa độ pixel)
+        // Tâm ô bắt đầu và kết thúc (tọa độ pixel) — flip Y
+        float startY = gridRect.y + (m_GridSize.y - 1 - start.y + 0.5f) * m_CellSize;
+        float endY   = gridRect.y + (m_GridSize.y - 1 - end.y   + 0.5f) * m_CellSize;
+
         Vector3 startCenter = new Vector3(
-            gridRect.x + (start.x + 0.5f) * m_CellSize,
-            gridRect.y + (start.y + 0.5f) * m_CellSize, 0);
+            gridRect.x + (start.x + 0.5f) * m_CellSize, startY, 0);
         Vector3 endCenter = new Vector3(
-            gridRect.x + (end.x + 0.5f) * m_CellSize,
-            gridRect.y + (end.y + 0.5f) * m_CellSize, 0);
+            gridRect.x + (end.x + 0.5f) * m_CellSize, endY, 0);
 
         // Hướng dọc theo tape và vector vuông góc (để tạo bề rộng)
         Vector3 dir  = (endCenter - startCenter).normalized;
@@ -411,12 +428,13 @@ public class TapeLevelEditorWindow : EditorWindow
         Vector2Int start = m_DragStart;
         Vector2Int end   = m_DragCurrent;
 
+        float startY = gridRect.y + (m_GridSize.y - 1 - start.y + 0.5f) * m_CellSize;
+        float endY   = gridRect.y + (m_GridSize.y - 1 - end.y   + 0.5f) * m_CellSize;
+
         Vector3 startCenter = new Vector3(
-            gridRect.x + (start.x + 0.5f) * m_CellSize,
-            gridRect.y + (start.y + 0.5f) * m_CellSize, 0);
+            gridRect.x + (start.x + 0.5f) * m_CellSize, startY, 0);
         Vector3 endCenter = new Vector3(
-            gridRect.x + (end.x + 0.5f) * m_CellSize,
-            gridRect.y + (end.y + 0.5f) * m_CellSize, 0);
+            gridRect.x + (end.x + 0.5f) * m_CellSize, endY, 0);
 
         Vector3 dir  = (endCenter - startCenter).normalized;
         Vector3 perp = new Vector3(-dir.y, dir.x, 0) * m_CellSize * 0.4f;
@@ -509,9 +527,9 @@ public class TapeLevelEditorWindow : EditorWindow
         if (localX < 0 || localY < 0) return null;
 
         int col = (int)(localX / m_CellSize);
-        int row = (int)(localY / m_CellSize);
+        int row = m_GridSize.y - 1 - (int)(localY / m_CellSize);
 
-        if (col < m_GridSize.x && row < m_GridSize.y)
+        if (col < m_GridSize.x && row >= 0 && row < m_GridSize.y)
             return new Vector2Int(col, row);
 
         return null;
@@ -818,5 +836,33 @@ public class TapeLevelEditorWindow : EditorWindow
         Repaint();
 
         Debug.Log("[TapeEditor] Đã xóa toàn bộ dữ liệu.");
+    }
+
+    // =============================================================
+    //  LOAD LEVEL — NẠP DỮ LIỆU TỪ FILE .asset VÀO EDITOR
+    // =============================================================
+    private void LoadFromAsset()
+    {
+        if (m_LoadAsset == null) return;
+
+        m_GridSize = m_LoadAsset.gridSize;
+        m_GridGenerated = true;
+
+        m_LevelData.gridSize = m_GridSize;
+        m_Tapes.Clear();
+
+        int maxId = 0;
+        foreach (Tape t in m_LoadAsset.tapes)
+        {
+            m_Tapes.Add(new Tape(t.id, t.startCell, t.endCell, t.layer));
+            if (t.id > maxId) maxId = t.id;
+        }
+        m_NextId = maxId + 1;
+        m_IsDragging = false;
+
+        RecalculateCellSize();
+        Repaint();
+
+        Debug.Log($"[TapeEditor] Đã load Level: {AssetDatabase.GetAssetPath(m_LoadAsset)}");
     }
 }
